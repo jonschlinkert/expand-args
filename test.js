@@ -7,6 +7,7 @@ var expand = require('./');
 
 describe('expand', function () {
   it('should expand args to object values:', function () {
+    expand({set: 'a|b'}).should.eql({set: {a: true, b: true}});
     expand({set: 'a:b'}).should.eql({set: {a: 'b'}});
     expand({set: 'a.b.c:d'}).should.eql({set: {a: {b: {c: 'd'}}}});
   });

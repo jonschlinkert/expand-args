@@ -33,7 +33,9 @@ Expander.prototype.splitOpts = function(argv) {
     }
 
     if (Array.isArray(orig) && key !== '_') {
-      res[key] = orig.map(expand);
+      res[key] = orig.map(function (ele) {
+        return expand(ele, {toBoolean: true});
+      });
       continue;
     }
 
@@ -42,8 +44,8 @@ Expander.prototype.splitOpts = function(argv) {
       continue;
     }
 
-    if (~val.indexOf(':')) {
-      res[key] = expand(val);
+    if (/\W/.test(val)) {
+      res[key] = expand(val, {toBoolean: true});
       continue;
     }
 
