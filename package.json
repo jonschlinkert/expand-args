@@ -1,7 +1,7 @@
 {
   "name": "expand-args",
   "description": "Expand parsed command line arguments using expand-object.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://github.com/jonschlinkert/expand-args",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/expand-args",
@@ -20,8 +20,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "expand-object": "^0.3.7",
-    "extend-shallow": "^2.0.1"
+    "expand-object": "^0.3.8"
   },
   "devDependencies": {
     "minimist": "^1.1.3",
