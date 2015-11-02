@@ -7,7 +7,7 @@
 
 'use strict';
 
-var expand = require('expand-object');
+var utils = require('./utils');
 
 function expandArgs(argv) {
   var res = {};
@@ -18,11 +18,50 @@ function expandArgs(argv) {
     }
 
     var orig = argv[key];
+    if (typeof orig === 'string') {
+      orig = orig.split('/').join('__SLASH__');
+    }
+
+    if (utils.typeOf(orig) === 'object') {
+      res[key] = expandArgs(orig);
+      continue;
+    }
+
     var val = orig.toString();
+
+    if ((/[\\\/]/.test(val) || /\/\./.test(val))) {
+      if (/:/.test(val)) {
+        res[key] = emit(val).split('|').reduce(function (acc, ele) {
+          var o = {};
+          var segs = ele.split(':');
+          var v = segs[1].split('\\.').join('.');
+          if (/,/.test(v)) {
+            v = v.split(',');
+          }
+          utils.set(o, segs[0], v);
+          extend(acc, o);
+          return acc;
+        }, {});
+        continue;
+      }
+
+      if (/,/.test(val)) {
+        res[key] = emit(val).split('|').reduce(function (acc, ele) {
+          var arr = ele.split('\\.').join('.').split(',');
+          return acc.concat(arr);
+        }, []);
+        continue;
+      }
+
+      if (val.indexOf('./') === 0) {
+        res[key] = emit(val);
+        continue;
+      }
+    }
 
     if (~key.indexOf(':') && val === 'true') {
       var parts = key.split(':');
-      res[parts[0]] = parts[1];
+      res[parts[0]] = emit(parts[1]);
       continue;
     }
 
@@ -35,10 +74,10 @@ function expandArgs(argv) {
         while (++i < len) {
           var ele = orig[i];
           if (/\W/.test(ele)) {
-            extend(res, expand(ele));
+            extend(res, utils.expand(ele));
           } else {
             res._ = res._ || [];
-            res._.push(ele);
+            res._.push(emit(ele));
           }
         }
       }
@@ -51,25 +90,36 @@ function expandArgs(argv) {
     }
 
     if (typeof orig === 'string' && /\W/.test(orig)) {
-      res[key] = expand(orig, {toBoolean: true});
+      res[key] = utils.expand(emit(orig), {toBoolean: true});
       continue;
     }
 
-    res[key] = orig;
+    res[key] = emit(orig);
   }
   return res;
 }
 
 function extend(a, b) {
-  for (var key in b) a[key] = b[key];
+  for (var key in b) {
+    a[key] = b[key];
+  }
   return a;
-};
+}
 
 function expandEach(arr) {
   return arr.map(function (ele) {
+    ele = emit(ele);
+
     if (!/\W/.test(ele)) return ele;
-    return expand(ele, {toBoolean: true});
+    return utils.expand(ele, {
+      toBoolean: true
+    });
   });
+}
+
+function emit(str) {
+  str = str.split('__SLASH__').join('/');
+  return str;
 }
 
 /**
