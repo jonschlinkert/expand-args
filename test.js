@@ -21,6 +21,7 @@ describe('expand', function () {
 
   //  path: 'a.b:d\\.js|cwd:fixtures|z:a,b,c' }
   it('should work with file paths:', function () {
+    expand({path: 'foo:/a/b/c' }).should.eql({path: {foo: '/a/b/c'}});
     expand({path: 'a.b:d\\.js' }).should.eql({path: {a: {b: 'd.js'}}});
     expand({path: 'cwd:a/b/c/d/e\\.js' }).should.eql({path: {cwd: 'a/b/c/d/e.js'}});
     expand({path: 'a\\.js,b\\.js,c\\.js' }).should.eql({path: ['a.js', 'b.js', 'c.js']});

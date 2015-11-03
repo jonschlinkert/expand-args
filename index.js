@@ -18,20 +18,15 @@ function expandArgs(argv) {
     }
 
     var orig = argv[key];
-    if (typeof orig === 'string') {
-      orig = orig.split('/').join('__SLASH__');
-    }
-
     if (utils.typeOf(orig) === 'object') {
       res[key] = expandArgs(orig);
       continue;
     }
 
     var val = orig.toString();
-
     if ((/[\\\/]/.test(val) || /\/\./.test(val))) {
       if (/:/.test(val)) {
-        res[key] = emit(val).split('|').reduce(function (acc, ele) {
+        res[key] = val.split('|').reduce(function (acc, ele) {
           var o = {};
           var segs = ele.split(':');
           var v = segs[1].split('\\.').join('.');
@@ -46,7 +41,7 @@ function expandArgs(argv) {
       }
 
       if (/,/.test(val)) {
-        res[key] = emit(val).split('|').reduce(function (acc, ele) {
+        res[key] = val.split('|').reduce(function (acc, ele) {
           var arr = ele.split('\\.').join('.').split(',');
           return acc.concat(arr);
         }, []);
@@ -54,14 +49,14 @@ function expandArgs(argv) {
       }
 
       if (val.indexOf('./') === 0) {
-        res[key] = emit(val);
+        res[key] = val;
         continue;
       }
     }
 
     if (~key.indexOf(':') && val === 'true') {
       var parts = key.split(':');
-      res[parts[0]] = emit(parts[1]);
+      res[parts[0]] = parts[1];
       continue;
     }
 
@@ -77,7 +72,7 @@ function expandArgs(argv) {
             extend(res, utils.expand(ele));
           } else {
             res._ = res._ || [];
-            res._.push(emit(ele));
+            res._.push(ele);
           }
         }
       }
@@ -90,11 +85,11 @@ function expandArgs(argv) {
     }
 
     if (typeof orig === 'string' && /\W/.test(orig)) {
-      res[key] = utils.expand(emit(orig), {toBoolean: true});
+      res[key] = utils.expand(orig, {toBoolean: true});
       continue;
     }
 
-    res[key] = emit(orig);
+    res[key] = orig;
   }
   return res;
 }
@@ -108,18 +103,11 @@ function extend(a, b) {
 
 function expandEach(arr) {
   return arr.map(function (ele) {
-    ele = emit(ele);
-
     if (!/\W/.test(ele)) return ele;
     return utils.expand(ele, {
       toBoolean: true
     });
   });
-}
-
-function emit(str) {
-  str = str.split('__SLASH__').join('/');
-  return str;
 }
 
 /**
