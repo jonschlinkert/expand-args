@@ -6,7 +6,6 @@ var assert = require('assert');
 var should = require('should');
 var expand = require('./');
 
-
 describe('expand', function () {
   it('should expand args to object values:', function () {
     expand({set: 'a|b'}).should.eql({set: {a: true, b: true}});
@@ -16,11 +15,6 @@ describe('expand', function () {
 
   it('should move non-options args with object values to options:', function () {
     expand({_: ['a|b']}).should.eql({a: true, b: true});
-  });
-
-  it('should expand args to array values:', function () {
-    expand({set: 'a:b,c:d'}).should.eql({set: [{a: 'b'}, {c: 'd'}]});
-    expand({set: 'a.b.c:d,e,f'}).should.eql({set: {a: {b: {c: ['d', 'e', 'f']}}}});
   });
 
   it('should not expand url values:', function () {
@@ -40,7 +34,21 @@ describe('expand', function () {
     expand({path: 'a.b:foo/bar/baz/d\\.js' }).should.eql({path: {a: {b: 'foo/bar/baz/d.js'}}});
     expand({path: 'a.b:d\\.js|x.y:z' }).should.eql({path: {a: {b: 'd.js'}, x: {y: 'z'}}});
   });
+});
 
+describe('arrays', function () {
+  it('should expand args to array values:', function () {
+    expand({set: 'a.b.c:d,e,f'}).should.eql({set: {a: {b: {c: ['d', 'e', 'f']}}}});
+  });
+
+  it('should merge array args when each arg is an object:', function () {
+    expand({one: [ 'a:b', 'c:d' ]}).should.eql({one: {a: 'b', c: 'd'}});
+    expand({one: [ 'a:b', 'c:d'], two: ['foo']}).should.eql({one: {a: 'b', c: 'd'}, two: ['foo']});
+    expand({set: 'a:b,c:d'}).should.eql({set: {a: 'b', c: 'd'}});
+  });
+});
+
+describe('_', function () {
   it('should convert key-value-keys to key-value object:', function () {
     // minimist (correctly) creates an object with a boolean value,
     // we want to convert this to an object
@@ -51,9 +59,6 @@ describe('expand', function () {
   it('should move key-value strings from non-options array to flags', function () {
     expand({'_': ['a:b']}).should.eql({a: 'b'});
   });
-});
-
-describe('_', function () {
   it('should ignore non-opts that have string values:', function () {
     expand({_: ['a', 'b']}).should.eql({_: ['a', 'b']});
   });
