@@ -22,9 +22,11 @@ describe('expand', function () {
   });
 
   it('should expand args with file paths:', function () {
-    expand({path: 'foo:/a/b/c' }).should.eql({path: {foo: '/a/b/c'}});
-    var actual = expand({_: ['a.b:d\\.js|cwd:fixtures|z:a,b,c'] });
-    actual.should.eql({a: {b: 'd.js'}, cwd: 'fixtures', z: ['a', 'b', 'c']});
+    var a = expand({path: 'foo:/a/b/c' });
+    a.should.eql({path: {foo: '/a/b/c'}});
+
+    var b = expand({_: ['a.b:d\\.js|cwd:fixtures|z:a,b,c'] });
+    b.should.eql({a: {b: 'd.js'}, cwd: 'fixtures', z: ['a', 'b', 'c']});
   });
 
   it('should respect escaped dots:', function () {
@@ -42,6 +44,7 @@ describe('arrays', function () {
   });
 
   it('should merge array args when each arg is an object:', function () {
+    expand({one: [ 'a:b', 'c:d' ]}).should.eql({one: {a: 'b', c: 'd'}});
     expand({one: [ 'a:b', 'c:d' ]}).should.eql({one: {a: 'b', c: 'd'}});
     expand({one: [ 'a:b', 'c:d'], two: ['foo']}).should.eql({one: {a: 'b', c: 'd'}, two: ['foo']});
     expand({set: 'a:b,c:d'}).should.eql({set: {a: 'b', c: 'd'}});
