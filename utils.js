@@ -9,8 +9,8 @@ require = utils;
  */
 
 require('expand-object', 'expand');
-require('extend-shallow', 'extend');
 require('kind-of', 'typeOf');
+require('mixin-deep', 'merge');
 require('set-value', 'set');
 require = fn;
 

@@ -110,17 +110,38 @@ function extend(a, b) {
 }
 
 function normalize(argv) {
+  var res = {};
   for (var key in argv) {
     var val = argv[key];
     if (typeof val === 'string') {
       argv[key] = val.split('\\').join('');
-    } else if (utils.typeOf(val) === 'object') {
+    } else if (isObject(val)) {
       argv[key] = normalize(val);
+    } else if (Array.isArray(val)) {
+      var len = val.length;
+      var idx = -1;
+
+      while (++idx < len) {
+        var ele = val[idx];
+        if (isObject(ele)) {
+          res[key] = res[key] || {};
+          extend(res[key], ele);
+        } else {
+          argv[key] = val;
+        }
+      }
+
     } else {
       argv[key] = val;
     }
   }
-  return argv;
+
+  var actual = utils.merge({}, argv, res);
+  return actual;
+}
+
+function isObject(val) {
+  return utils.typeOf(val) === 'object';
 }
 
 function expandEach(arr) {
@@ -133,7 +154,7 @@ function expandEach(arr) {
 }
 
 /**
- * Expose an instance of `expandArgs` plugin
+ * Expose `expandArgs`
  */
 
 module.exports = expandArgs;
