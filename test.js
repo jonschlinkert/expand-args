@@ -37,6 +37,11 @@ describe('expand', function () {
     b.should.eql({a: {b: 'd.js'}, cwd: 'fixtures', z: ['a', 'b', 'c']});
   });
 
+  it('should escape dots on specified properties', function () {
+    var a = expand({file: 'index.js' }, {esc: ['file', 'f']});
+    a.should.eql({file: 'index.js'});
+  });
+
   it('should respect escaped dots:', function () {
     expand({path: 'a.b:d\\.js' }).should.eql({path: {a: {b: 'd.js'}}});
     expand({path: 'cwd:a/b/c/d/e\\.js' }).should.eql({path: {cwd: 'a/b/c/d/e.js'}});

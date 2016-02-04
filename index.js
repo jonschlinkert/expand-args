@@ -10,7 +10,8 @@
 var utils = require('./utils');
 var sep = /[ =:]/;
 
-function expand(argv) {
+function expand(argv, options) {
+  var opts = utils.merge({}, options);
   var res = {};
   var segs;
   var val;
@@ -57,6 +58,9 @@ function expand(argv) {
               merge(key, val);
             }
           } else {
+            if (opts.esc && ~opts.esc.indexOf(key)) {
+              val = val.split('.').join('\\.');
+            }
             var str = key + ':' + val;
             segs = str.split(sep);
             val = toBoolean(segs.pop());
