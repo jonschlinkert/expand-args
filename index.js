@@ -35,6 +35,8 @@ function expand(argv) {
         key = segs.join('.');
       }
 
+      val = toBoolean(val);
+
       switch (utils.typeOf(val)) {
         case 'object':
           res[key] = expand(val);
@@ -49,7 +51,7 @@ function expand(argv) {
             val = expandString(val);
             if (Array.isArray(val) && hasObjects(val)) {
               val.forEach(function(ele) {
-                merge(key, ele);
+                merge(key, toBoolean(ele));
               });
             } else {
               merge(key, val);
@@ -57,7 +59,7 @@ function expand(argv) {
           } else {
             var str = key + ':' + val;
             segs = str.split(sep);
-            val = segs.pop();
+            val = toBoolean(segs.pop());
             key = segs.join('.');
             utils.set(res, key, expandString(val));
           }
@@ -66,7 +68,9 @@ function expand(argv) {
           if (hasObjects(val)) {
             merge(key, expandEach(val));
           } else {
-            res[key] = val;
+            res[key] = val.map(function(ele) {
+              return toBoolean(ele);
+            });
           }
           break;
         case 'boolean':
@@ -93,7 +97,7 @@ function expandString(val) {
     if (~val.indexOf(',')) {
       return val.split(',');
     }
-    return val;
+    return toBoolean(val);
   }
 
   if (!/\W/.test(val)) {
@@ -148,6 +152,12 @@ function unescape(val) {
 
 function isString(val) {
   return typeof val === 'string';
+}
+
+function toBoolean(val) {
+  if (val === 'true') val = true;
+  if (val === 'false') val = false;
+  return val;
 }
 
 function isObject(val) {

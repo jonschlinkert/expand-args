@@ -21,6 +21,14 @@ describe('expand', function () {
     expand({foo: 'http://foo/bar.baz'}).should.eql({foo: 'http://foo/bar.baz'});
   });
 
+  it('should cast boolean values to real booleans', function () {
+    expand({foo: 'true'}).should.eql({foo: true});
+    expand({foo: 'false'}).should.eql({foo: false});
+    expand({foo: ['false', 'true']}).should.eql({foo: [false, true]});
+    expand({foo: 'true,false,true'}).should.eql({foo: [true, false, true]});
+    expand({foo: 'a:true'}).should.eql({foo: {a: true}});
+  });
+
   it('should expand args with file paths:', function () {
     var a = expand({path: 'foo:/a/b/c' });
     a.should.eql({path: {foo: '/a/b/c'}});
