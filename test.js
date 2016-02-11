@@ -21,6 +21,10 @@ describe('expand', function () {
     expand({foo: 'http://foo/bar.baz'}).should.eql({foo: 'http://foo/bar.baz'});
   });
 
+  it('should not expand sentences:', function () {
+    expand({foo: 'This is a sentence.'}).should.eql({foo: 'This is a sentence.'});
+  });
+
   it('should cast boolean values to real booleans', function () {
     expand({foo: 'true'}).should.eql({foo: true});
     expand({foo: 'false'}).should.eql({foo: false});

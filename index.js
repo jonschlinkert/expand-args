@@ -8,7 +8,7 @@
 'use strict';
 
 var utils = require('./utils');
-var sep = /[ =:]/;
+var sep = /[=:]/;
 
 function expand(argv, options) {
   var opts = utils.merge({}, options);
@@ -46,9 +46,11 @@ function expand(argv, options) {
           if (~val.indexOf('|')) {
             val = val.split('|');
             utils.set(res, key, expandEach(val));
+
           } else if (isUrl(val)) {
             utils.set(res, key, expandString(val));
-          } else if (~val.indexOf(',')) {
+
+          } else if (/\w,\w/.test(val)) {
             val = expandString(val);
             if (Array.isArray(val) && hasObjects(val)) {
               val.forEach(function(ele) {
@@ -57,7 +59,8 @@ function expand(argv, options) {
             } else {
               merge(key, val);
             }
-          } else {
+
+          } else if (sep.test(val)) {
             if (opts.esc && ~opts.esc.indexOf(key)) {
               val = val.split('.').join('\\.');
             }
@@ -66,6 +69,9 @@ function expand(argv, options) {
             val = toBoolean(segs.pop());
             key = segs.join('.');
             utils.set(res, key, expandString(val));
+
+          } else {
+            res[key] = val.split('\\.').join('.');
           }
           break;
         case 'array':
