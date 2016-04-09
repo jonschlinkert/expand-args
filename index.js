@@ -17,9 +17,11 @@ function expand(argv, options) {
   var val;
   var key;
 
+  argv = preProcess(argv, options);
+
   function merge(key, val) {
     if (key === '_') {
-      utils.merge(res, val);
+      res = utils.merge({}, res, val);
     } else {
       utils.set(res, key, val);
     }
@@ -119,6 +121,48 @@ function expandString(val) {
   });
 }
 
+function preProcess(argv, options) {
+  var obj = {};
+
+  if (Array.isArray(argv)) {
+    argv = argv.reduce(function(acc, str) {
+      if (!/['"]/.test(str)) {
+        return acc.concat(str.split(' '));
+      }
+      return acc.concat(str);
+    }, []);
+
+    argv = argv.map(function(str) {
+      if (isUrl(str) || /['"]/.test(str)) {
+        var m = /[=:.]/.exec(str);
+        if (m) {
+          var key = str.slice(0, m.index);
+          var val = str.slice(m.index + 1);
+          if (isUrl(val)) {
+            obj[key] = val;
+            return;
+          }
+          if (/^['"]/.test(val) && /['"]$/.test(val)) {
+            obj[key] = val.slice(1, val.length - 1);
+            return;
+          }
+        }
+        return str;
+      }
+
+      if (!/=.*,/.test(str)) {
+        str = str.split(':').join('=');
+      }
+      return str;
+    });
+
+    argv = utils.minimist(argv, options);
+  }
+
+  argv = utils.merge({}, argv, obj);
+  return utils.omitEmpty(argv);
+}
+
 function expandEach(arr) {
   var len = arr.length;
   var idx = -1;
@@ -137,7 +181,7 @@ function isBoolean(val) {
 }
 
 function isUrl(val) {
-  return /\w:\/\/\w/.test(val);
+  return /\w+:\/\/\w/.test(val);
 }
 
 function isPath(val) {
