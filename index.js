@@ -134,6 +134,7 @@ function preProcess(argv, options) {
 
     argv = argv.map(function(str) {
       if (isUrl(str) || /['"]/.test(str)) {
+        str = str.replace(/^-+/, '');
         var m = /[=:.]/.exec(str);
         if (m) {
           var key = str.slice(0, m.index);
