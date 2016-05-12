@@ -112,7 +112,7 @@ function expandString(val) {
     return toBoolean(val);
   }
 
-  if (!/\W/.test(val)) {
+  if (/^[\s\w]+$/.test(val)) {
     return val;
   }
 
