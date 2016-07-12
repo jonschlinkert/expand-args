@@ -25,6 +25,10 @@ describe('expand-args', function() {
         expand(['foo.http://foo/bar.baz']).should.eql({foo: 'http://foo/bar.baz'});
       });
 
+      it('should not change windows paths:', function() {
+        expand(['c:\\foo\\bar\\baz']).should.eql({_: ['c:\\foo\\bar\\baz']});
+      });
+
       it('should not expand sentences:', function() {
         expand(['foo="This is a sentence."']).should.eql({foo: 'This is a sentence.'});
         expand(['foo:"This is a sentence."']).should.eql({foo: 'This is a sentence.'});
@@ -99,6 +103,10 @@ describe('expand-args', function() {
         expand({foo: 'http://foo/bar.baz'}).should.eql({foo: 'http://foo/bar.baz'});
       });
 
+      it('should not change windows paths:', function() {
+        expand({cwd: 'c:\\foo\\bar\\baz'}).should.eql({cwd: 'c:\\foo\\bar\\baz'});
+      });
+
       it('should not expand sentences:', function() {
         expand({foo: 'This is a sentence.'}).should.eql({foo: 'This is a sentence.'});
       });
@@ -111,13 +119,13 @@ describe('expand-args', function() {
         expand({foo: 'a:true'}).should.eql({foo: {a: true}});
       });
 
-      // it('should expand args with file paths:', function() {
-      //   var a = expand({path: 'foo:/a/b/c' });
-      //   a.should.eql({path: {foo: '/a/b/c'}});
+      it('should expand args with file paths:', function() {
+        var a = expand({path: 'foo:/a/b/c' });
+        a.should.eql({path: {foo: '/a/b/c'}});
 
-      //   var b = expand({_: ['a.b:d\\.js|cwd:fixtures|z:a,b,c'] });
-      //   b.should.eql({a: {b: 'd.js'}, cwd: 'fixtures', z: ['a', 'b', 'c']});
-      // });
+        var b = expand({_: ['a.b:d\\.js|cwd:fixtures|z:a,b,c'] });
+        b.should.eql({a: {b: 'd.js'}, cwd: 'fixtures', z: ['a', 'b', 'c']});
+      });
 
       it('should escape dots on specified properties', function() {
         var a = expand({file: 'index.js' }, {esc: ['file', 'f']});

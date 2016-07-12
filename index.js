@@ -17,6 +17,18 @@ function expand(argv, options) {
   var val;
   var key;
 
+  if (Array.isArray(argv)) {
+    argv = argv.reduce(function(acc, val) {
+      if (typeof val === 'string' && isWindowsPath(val)) {
+        res._ = res._ || [];
+        res._.push(val);
+        return acc;
+      }
+      acc.push(val);
+      return acc;
+    }, []);
+  }
+
   argv = preProcess(argv, options);
 
   function merge(key, val) {
@@ -30,6 +42,11 @@ function expand(argv, options) {
   for (key in argv) {
     if (argv.hasOwnProperty(key)) {
       val = argv[key];
+
+      if (typeof val === 'string' && isWindowsPath(val)) {
+        res[key] = val;
+        continue;
+      }
 
       // '{'a b': true}'
       if (sep.test(key) && isBoolean(val)) {
@@ -183,6 +200,10 @@ function isBoolean(val) {
 
 function isUrl(val) {
   return /\w+:\/\/\w/.test(val);
+}
+
+function isWindowsPath(val) {
+  return /^\w:[\\\/]/.test(val);
 }
 
 function isPath(val) {
