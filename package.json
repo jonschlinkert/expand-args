@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "expand-object": "^0.4.2",
-    "kind-of": "^3.0.3",
+    "kind-of": "^6.0.3",
     "lazy-cache": "^2.0.1",
     "minimist": "^1.2.0",
     "mixin-deep": "^1.1.3",
